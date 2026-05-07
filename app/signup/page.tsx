@@ -6,7 +6,7 @@ export default function SignupPage() {
     <AuthShell
       eyebrow="Create workspace"
       title="Set up a cleaner place to review change risk."
-      description="The sign-up route is ready for later Supabase integration while already matching the product’s dark SaaS visual language."
+      description="The sign-up route is ready for later Supabase integration while already matching the product's dark SaaS visual language."
     >
       <AuthForm
         title="Sign up"
