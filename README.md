@@ -17,6 +17,8 @@ CodeReviewX is an AI-assisted pull request review workspace built for fast triag
 - Settings page profile save
 - GitHub PR URL parser and API fetch foundation
 - GitHub changed-files fetcher with optional token support
+- Rule-based static analyzer and risk scoring engine
+- Deterministic summary generation
 - SQL migrations and RLS policies
 - Placeholder review routes for future phases
 - Environment template
@@ -57,7 +59,7 @@ public/
 
 3. Open [http://localhost:3000](http://localhost:3000).
 
-4. Run the parser unit tests:
+4. Run the analyzer and parser unit tests:
 
    ```powershell
    npm test
@@ -95,11 +97,22 @@ Copy `.env.example` to `.env.local` and add your Supabase project credentials.
 - Optional GitHub token support for private repositories and rate-limit recovery
 - Parser unit tests and sample GitHub response fixtures
 
+## What Phase 4 Adds
+
+- Secret detection
+- SQL injection-looking pattern detection
+- Sensitive file change detection
+- Missing-tests and deleted-tests heuristics
+- Large diff and dependency-change heuristics
+- Dangerous JS/TS pattern detection
+- File risk scoring and overall risk scoring
+- Deterministic rule-based summary output
+- Analyzer and scoring unit tests
+
 ## Still Deferred
 
 The following are intentionally not implemented yet:
 
-- Static analyzer and risk scoring
 - AI summaries and export flows
 - Review ingestion and persistence UI
 

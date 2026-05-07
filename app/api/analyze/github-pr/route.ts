@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { analyzeGitHubFiles } from "@/lib/analyzer/rules";
 import { GitHubApiError } from "@/lib/github/errors";
 import { fetchPrFiles } from "@/lib/github/fetch-pr-files";
 import { fetchPrMetadata } from "@/lib/github/fetch-pr-metadata";
@@ -57,6 +58,7 @@ export async function POST(request: Request) {
       parsed: parsedPrUrl,
       pullRequest,
       files,
+      analysis: analyzeGitHubFiles(files),
     };
 
     return NextResponse.json(result);

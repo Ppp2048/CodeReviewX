@@ -1,3 +1,5 @@
+import type { AnalyzerResult } from "@/lib/analyzer/types";
+
 export type ParsedPrUrl = {
   owner: string;
   repo: string;
@@ -50,4 +52,5 @@ export type AnalyzeGitHubPrResult = {
   parsed: ParsedPrUrl;
   pullRequest: GitHubPrMetadata;
   files: GitHubPrFile[];
+  analysis: AnalyzerResult;
 };
