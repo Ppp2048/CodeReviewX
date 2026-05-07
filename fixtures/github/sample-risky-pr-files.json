@@ -9,7 +9,7 @@
     "blob_url": "https://github.com/example/repo/blob/main/src/auth/session.ts",
     "raw_url": "https://raw.githubusercontent.com/example/repo/main/src/auth/session.ts",
     "contents_url": "https://api.github.com/repos/example/repo/contents/src/auth/session.ts?ref=main",
-    "patch": "@@ -10,6 +10,11 @@ export async function persistSession(user) {\n+const PROD_SECRET = \"sb_secret_abcdefghijklmnopqrstuvwxyz\";\n+const password = \"super-secret-password\";\n+const query = \"SELECT * FROM users WHERE email = '\" + email + \"'\";\n+const result = eval(untrustedTemplate);\n+const html = { dangerouslySetInnerHTML: { __html: content } };\n   return user;\n }\n"
+    "patch": "@@ -10,6 +10,11 @@ export async function persistSession(user) {\n+const PROD_SECRET = \"demo-hardcoded-secret-value\";\n+const password = \"super-secret-password\";\n+const query = \"SELECT * FROM users WHERE email = '\" + email + \"'\";\n+const result = eval(untrustedTemplate);\n+const html = { dangerouslySetInnerHTML: { __html: content } };\n   return user;\n }\n"
   },
   {
     "sha": "abc222",
