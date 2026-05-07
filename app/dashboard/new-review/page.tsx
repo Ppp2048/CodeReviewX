@@ -10,12 +10,12 @@ export default function NewReviewPage() {
     <div className="space-y-8">
       <div className="space-y-2">
         <Badge variant="accent" className="w-fit">
-          GitHub source intake
+          Static analyzer foundation
         </Badge>
         <h2 className="text-3xl font-semibold text-white">New review</h2>
         <p className="max-w-3xl text-sm leading-6 text-slate-400">
-          Phase 3 adds the GitHub PR parser and changed-files fetch foundation.
-          Static analysis and AI summaries are still intentionally deferred.
+          Phase 4 adds explainable static analysis, risk scoring, and a deterministic
+          rule-based summary on top of the GitHub PR fetch foundation.
         </p>
       </div>
 
@@ -24,7 +24,8 @@ export default function NewReviewPage() {
           <CardTitle>Review intake</CardTitle>
           <CardDescription>
             Use the API foundation at <code>/api/analyze/github-pr</code> to fetch
-            pull request metadata and changed files.
+            pull request metadata, changed files, static-analysis issues, and
+            deterministic review summaries.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -56,10 +57,11 @@ export default function NewReviewPage() {
           <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-sm leading-6 text-slate-400">
             Current backend scope:
             public PRs work without a token, private repos can use an optional token,
-            and the API returns metadata plus changed files with structured error responses.
+            and the API returns metadata, changed files, rule-based issues, risk
+            scores, and structured error responses.
           </div>
           <div className="flex justify-end">
-            <Button variant="outline">UI wiring comes next</Button>
+            <Button variant="outline">Review UI comes next</Button>
           </div>
         </CardContent>
       </Card>

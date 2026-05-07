@@ -1,0 +1,50 @@
+[
+  {
+    "sha": "abc111",
+    "filename": "src/auth/session.ts",
+    "status": "modified",
+    "additions": 180,
+    "deletions": 20,
+    "changes": 320,
+    "blob_url": "https://github.com/example/repo/blob/main/src/auth/session.ts",
+    "raw_url": "https://raw.githubusercontent.com/example/repo/main/src/auth/session.ts",
+    "contents_url": "https://api.github.com/repos/example/repo/contents/src/auth/session.ts?ref=main",
+    "patch": "@@ -10,6 +10,11 @@ export async function persistSession(user) {\n+const PROD_SECRET = \"sb_secret_abcdefghijklmnopqrstuvwxyz\";\n+const password = \"super-secret-password\";\n+const query = \"SELECT * FROM users WHERE email = '\" + email + \"'\";\n+const result = eval(untrustedTemplate);\n+const html = { dangerouslySetInnerHTML: { __html: content } };\n   return user;\n }\n"
+  },
+  {
+    "sha": "abc222",
+    "filename": "package.json",
+    "status": "modified",
+    "additions": 8,
+    "deletions": 1,
+    "changes": 9,
+    "blob_url": "https://github.com/example/repo/blob/main/package.json",
+    "raw_url": "https://raw.githubusercontent.com/example/repo/main/package.json",
+    "contents_url": "https://api.github.com/repos/example/repo/contents/package.json?ref=main",
+    "patch": "@@ -4,5 +4,10 @@\n   \"dependencies\": {\n+    \"left-pad\": \"^1.3.0\"\n   }\n"
+  },
+  {
+    "sha": "abc333",
+    "filename": "tests/auth/session.test.ts",
+    "status": "removed",
+    "additions": 0,
+    "deletions": 40,
+    "changes": 40,
+    "blob_url": "https://github.com/example/repo/blob/main/tests/auth/session.test.ts",
+    "raw_url": "https://raw.githubusercontent.com/example/repo/main/tests/auth/session.test.ts",
+    "contents_url": "https://api.github.com/repos/example/repo/contents/tests/auth/session.test.ts?ref=main",
+    "patch": "@@ -1,10 +0,0 @@\n-describe('session', () => {\n-  it('persists the session', () => {\n-    expect(true).toBe(true);\n-  });\n-});\n"
+  },
+  {
+    "sha": "abc444",
+    "filename": "src/jobs/reporting.ts",
+    "status": "modified",
+    "additions": 400,
+    "deletions": 120,
+    "changes": 520,
+    "blob_url": "https://github.com/example/repo/blob/main/src/jobs/reporting.ts",
+    "raw_url": "https://raw.githubusercontent.com/example/repo/main/src/jobs/reporting.ts",
+    "contents_url": "https://api.github.com/repos/example/repo/contents/src/jobs/reporting.ts?ref=main",
+    "patch": "@@ -1,3 +1,3 @@\n+// large reporting refactor\n"
+  }
+]
