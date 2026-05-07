@@ -10,14 +10,22 @@ type AuthFormProps = {
   title: string;
   description: string;
   submitLabel: string;
+  action: (formData: FormData) => void | Promise<void>;
   footerLabel: string;
   footerHref: Route;
   footerLinkText: string;
+  disabled?: boolean;
+  message?: {
+    type: "error" | "success";
+    text: string;
+  };
   fields: Array<{
     id: string;
     label: string;
     type?: string;
     placeholder: string;
+    defaultValue?: string;
+    autoComplete?: string;
   }>;
 };
 
@@ -25,9 +33,12 @@ export function AuthForm({
   title,
   description,
   submitLabel,
+  action,
   footerLabel,
   footerHref,
   footerLinkText,
+  disabled = false,
+  message,
   fields,
 }: AuthFormProps) {
   return (
@@ -37,20 +48,35 @@ export function AuthForm({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <form className="space-y-5">
+        <form action={action} className="space-y-5">
+          {message ? (
+            <div
+              className={
+                message.type === "error"
+                  ? "rounded-2xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200"
+                  : "rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200"
+              }
+            >
+              {message.text}
+            </div>
+          ) : null}
+
           {fields.map((field) => (
             <div key={field.id} className="space-y-2">
               <Label htmlFor={field.id}>{field.label}</Label>
               <Input
                 id={field.id}
+                name={field.id}
                 type={field.type}
                 placeholder={field.placeholder}
-                autoComplete="off"
+                defaultValue={field.defaultValue}
+                autoComplete={field.autoComplete ?? "off"}
+                disabled={disabled}
               />
             </div>
           ))}
 
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" disabled={disabled}>
             {submitLabel}
           </Button>
         </form>

@@ -1,8 +1,8 @@
 # CodeReviewX
 
-CodeReviewX is an AI-assisted pull request review workspace built for fast triage, structured review workflows, and clear risk visibility. This repository currently includes the Phase 1 product scaffold: a polished Next.js dashboard shell, auth entry points, and a settings experience ready for later Supabase, GitHub, and AI integrations.
+CodeReviewX is an AI-assisted pull request review workspace built for fast triage, structured review workflows, and clear risk visibility. This repository currently includes the Phase 1 scaffold plus Phase 2 Supabase foundations: authentication, protected routes, profile persistence, and schema migrations.
 
-## Phase 1 Scope
+## Current Scope
 
 - Next.js App Router scaffold with TypeScript
 - Tailwind CSS setup
@@ -11,7 +11,11 @@ CodeReviewX is an AI-assisted pull request review workspace built for fast triag
 - Login page
 - Signup page
 - Dashboard shell
-- Settings page
+- Supabase Auth wiring
+- Browser and server Supabase clients
+- Protected dashboard and settings routes
+- Settings page profile save
+- SQL migrations and RLS policies
 - Placeholder review routes for future phases
 - Environment template
 
@@ -20,6 +24,9 @@ CodeReviewX is an AI-assisted pull request review workspace built for fast triag
 - Next.js 15 App Router
 - TypeScript
 - Tailwind CSS
+- Supabase Auth
+- Supabase SSR helpers
+- Supabase PostgreSQL migrations
 - ESLint
 
 ## Folder Structure
@@ -49,16 +56,35 @@ public/
 
 ## Environment Variables
 
-Copy `.env.example` to `.env.local` and fill in values when Phase 2 integrations begin.
+Copy `.env.example` to `.env.local` and add your Supabase project credentials.
 
-## Phase 2 and Beyond
+## Supabase Setup
+
+1. Create a Supabase project.
+2. In Supabase, copy:
+   - `Project URL` into `NEXT_PUBLIC_SUPABASE_URL`
+   - `Publishable key` into `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+3. Add the `Service role key` to `SUPABASE_SERVICE_ROLE_KEY` for future server-only tasks. Phase 2 does not expose it to the browser.
+4. In the Supabase SQL editor, run the migration in [supabase/migrations/20260507163000_phase2_auth_schema.sql](supabase/migrations/20260507163000_phase2_auth_schema.sql)
+   or apply it with the Supabase CLI if you use one.
+5. In Authentication settings, configure your site URL and any local redirect URLs you need, such as `http://localhost:3000`.
+
+## What Phase 2 Adds
+
+- Supabase email/password auth
+- Middleware-based route protection for `/dashboard` and `/settings`
+- Profile persistence for the settings page
+- SQL schema for `profiles`, `reviews`, `review_files`, and `review_issues`
+- Row Level Security policies for user-owned data
+
+## Still Deferred
 
 The following are intentionally not implemented yet:
 
-- Supabase auth wiring and database tables
 - GitHub PR ingestion and analysis
+- Static analyzer and risk scoring
 - AI summaries and export flows
-- Review persistence
+- Review ingestion and persistence UI
 
 ## Deployment Notes
 

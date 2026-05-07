@@ -41,7 +41,7 @@ export default function DashboardPage() {
         <Card className="bg-white/[0.03]">
           <CardHeader>
             <CardTitle>Phase roadmap status</CardTitle>
-            <CardDescription>Only the scaffold is implemented in this milestone.</CardDescription>
+            <CardDescription>Auth and schema foundations are now in place for the next review phases.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
@@ -55,14 +55,14 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+            <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4">
               <div className="mb-2 flex items-center justify-between">
-                <p className="font-medium text-white">Phase 2+</p>
-                <Badge>Not started</Badge>
+                <p className="font-medium text-white">Phase 2</p>
+                <Badge variant="accent">Live</Badge>
               </div>
               <p className="text-sm leading-6 text-slate-400">
-                Supabase auth, database tables, GitHub PR analysis, and AI summaries
-                are intentionally deferred.
+                Supabase auth, protected dashboard routes, profile persistence, and
+                SQL migrations are implemented. GitHub review analysis and AI remain deferred.
               </p>
             </div>
           </CardContent>
