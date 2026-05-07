@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Download } from "lucide-react";
 
 import { parseStoredGeneratedSummary } from "@/lib/ai/summary";
 import { ReviewFilesPanel } from "@/components/review/review-files-panel";
@@ -91,9 +91,17 @@ export default async function ReviewDetailPage({
               </a>
             ) : null}
           </div>
-          <Badge variant={getRiskBadgeVariant(detail.review.risk_level)} className="w-fit">
-            {detail.review.risk_level} risk | {detail.review.overall_risk_score}/100
-          </Badge>
+          <div className="flex flex-col items-start gap-3 md:items-end">
+            <Badge variant={getRiskBadgeVariant(detail.review.risk_level)} className="w-fit">
+              {detail.review.risk_level} risk | {detail.review.overall_risk_score}/100
+            </Badge>
+            <a href={`/api/export/${detail.review.id}`} className="inline-flex">
+              <Button variant="outline" size="sm">
+                <Download className="mr-2 h-4 w-4" />
+                Export Markdown
+              </Button>
+            </a>
+          </div>
         </div>
       </div>
 

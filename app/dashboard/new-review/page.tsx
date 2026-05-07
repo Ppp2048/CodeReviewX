@@ -1,3 +1,5 @@
+import { createDemoReviewAction } from "@/app/dashboard/new-review/actions";
+import { DemoReviewCard } from "@/components/review/demo-review-card";
 import { NewReviewForm } from "@/components/review/new-review-form";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,23 +19,24 @@ export default function NewReviewPage() {
       </div>
 
       <NewReviewForm />
+      <DemoReviewCard action={createDemoReviewAction} />
 
       <Card className="bg-white/[0.03]">
         <CardHeader>
-          <CardTitle>What ships in Phase 5</CardTitle>
+          <CardTitle>Phase 7 polish</CardTitle>
           <CardDescription>
-            This milestone turns the analyzer foundation into a usable review flow.
+            This stage rounds out the demo and reporting experience around the existing review workflow.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 text-sm leading-6 text-slate-400 md:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-            Analyze from GitHub PR URLs with optional token support for private repositories.
+            Markdown export is available from each saved report for stakeholder sharing and handoff.
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-            Save report metadata, files, issues, and risk scoring into your Supabase workspace.
+            Demo mode can seed the dashboard with a realistic risky pull request using local fixtures.
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-            Review the result with grouped issues, per-file scores, and an inline diff viewer.
+            Dashboard charts and common issue categories now reflect saved report history.
           </div>
         </CardContent>
       </Card>
