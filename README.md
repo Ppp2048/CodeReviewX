@@ -15,6 +15,8 @@ CodeReviewX is an AI-assisted pull request review workspace built for fast triag
 - Browser and server Supabase clients
 - Protected dashboard and settings routes
 - Settings page profile save
+- GitHub PR URL parser and API fetch foundation
+- GitHub changed-files fetcher with optional token support
 - SQL migrations and RLS policies
 - Placeholder review routes for future phases
 - Environment template
@@ -27,6 +29,7 @@ CodeReviewX is an AI-assisted pull request review workspace built for fast triag
 - Supabase Auth
 - Supabase SSR helpers
 - Supabase PostgreSQL migrations
+- Vitest
 - ESLint
 
 ## Folder Structure
@@ -54,6 +57,12 @@ public/
 
 3. Open [http://localhost:3000](http://localhost:3000).
 
+4. Run the parser unit tests:
+
+   ```powershell
+   npm test
+   ```
+
 ## Environment Variables
 
 Copy `.env.example` to `.env.local` and add your Supabase project credentials.
@@ -77,11 +86,19 @@ Copy `.env.example` to `.env.local` and add your Supabase project credentials.
 - SQL schema for `profiles`, `reviews`, `review_files`, and `review_issues`
 - Row Level Security policies for user-owned data
 
+## What Phase 3 Adds
+
+- GitHub pull request URL parsing
+- GitHub PR metadata fetcher
+- GitHub changed-files fetcher
+- API route at `app/api/analyze/github-pr/route.ts`
+- Optional GitHub token support for private repositories and rate-limit recovery
+- Parser unit tests and sample GitHub response fixtures
+
 ## Still Deferred
 
 The following are intentionally not implemented yet:
 
-- GitHub PR ingestion and analysis
 - Static analyzer and risk scoring
 - AI summaries and export flows
 - Review ingestion and persistence UI
