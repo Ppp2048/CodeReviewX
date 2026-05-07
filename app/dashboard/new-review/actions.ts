@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { buildReviewSummary } from "@/lib/ai/summary";
 import { parseUnifiedDiff } from "@/lib/analyzer/diff-parser";
 import { analyzeGitHubFiles } from "@/lib/analyzer/rules";
 import { GitHubApiError } from "@/lib/github/errors";
@@ -75,6 +76,14 @@ export async function createReviewAction(
     redirect("/login?error=Your session expired. Please sign in again.");
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("preferred_ai_provider")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const providerPreference = profile?.preferred_ai_provider ?? "none";
+
   try {
     if (parsed.data.sourceType === "github_pr") {
       const parsedPrUrl = parseGitHubPrUrl(parsed.data.prUrl ?? "");
@@ -94,6 +103,14 @@ export async function createReviewAction(
       ]);
 
       const analysis = analyzeGitHubFiles(files);
+      const summary = await buildReviewSummary({
+        providerPreference,
+        reviewTitle: pullRequest.title,
+        sourceType: "github_pr",
+        analysis,
+        files,
+        pullRequest,
+      });
       const review = await persistReview({
         supabase,
         userId: user.id,
@@ -101,7 +118,11 @@ export async function createReviewAction(
         parsedPrUrl,
         pullRequest,
         files,
-        analysis,
+        summary,
+        overallRiskScore: analysis.overallRiskScore,
+        riskLevel: analysis.riskLevel,
+        issues: analysis.issues,
+        fileRisks: analysis.fileRisks,
         rawDiff: null,
       });
 
@@ -119,12 +140,23 @@ export async function createReviewAction(
     }
 
     const analysis = analyzeGitHubFiles(files);
+    const summary = await buildReviewSummary({
+      providerPreference,
+      reviewTitle: "Manual diff review",
+      sourceType: "diff_upload",
+      analysis,
+      files,
+    });
     const review = await persistReview({
       supabase,
       userId: user.id,
       sourceType: "diff_upload",
       files,
-      analysis,
+      summary,
+      overallRiskScore: analysis.overallRiskScore,
+      riskLevel: analysis.riskLevel,
+      issues: analysis.issues,
+      fileRisks: analysis.fileRisks,
       rawDiff,
     });
 

@@ -111,7 +111,7 @@ export function SettingsForm({
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-sm leading-6 text-slate-400">
-            Optional AI API keys are intentionally not stored here yet. Phase 2 only persists the profile fields needed for future review workflows.
+            The preferred AI provider only controls server-side summary generation. API keys stay in environment variables on the server and are never stored in the browser or your profile.
           </div>
 
           <div className="flex justify-end">

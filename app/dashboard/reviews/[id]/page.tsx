@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
+import { parseStoredGeneratedSummary } from "@/lib/ai/summary";
 import { ReviewFilesPanel } from "@/components/review/review-files-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,7 +47,7 @@ export default async function ReviewDetailPage({
   ) as Record<(typeof severityOrder)[number], typeof detail.issues>;
   const filePathById = new Map(detail.files.map((file) => [file.id, file.file_path]));
 
-  const summaryLines = detail.review.ai_summary?.split(/\n+/).filter(Boolean) ?? [];
+  const parsedSummary = parseStoredGeneratedSummary(detail.review.ai_summary);
   const suggestedTests = detail.review.suggested_tests?.split(/\n+/).filter(Boolean) ?? [];
 
   return (
@@ -72,8 +73,8 @@ export default async function ReviewDetailPage({
             <div>
               <p className="text-sm text-slate-400">
                 {[detail.review.repo_owner, detail.review.repo_name].filter(Boolean).join("/") || "Manual diff source"}
-                {detail.review.pr_number ? ` · PR #${detail.review.pr_number}` : ""}
-                {detail.review.author ? ` · ${detail.review.author}` : ""}
+                {detail.review.pr_number ? ` | PR #${detail.review.pr_number}` : ""}
+                {detail.review.author ? ` | ${detail.review.author}` : ""}
               </p>
               <h2 className="text-3xl font-semibold text-white">
                 {detail.review.title ?? "Untitled review"}
@@ -91,7 +92,7 @@ export default async function ReviewDetailPage({
             ) : null}
           </div>
           <Badge variant={getRiskBadgeVariant(detail.review.risk_level)} className="w-fit">
-            {detail.review.risk_level} risk · {detail.review.overall_risk_score}/100
+            {detail.review.risk_level} risk | {detail.review.overall_risk_score}/100
           </Badge>
         </div>
       </div>
@@ -126,19 +127,30 @@ export default async function ReviewDetailPage({
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <Card className="bg-white/[0.03]">
           <CardHeader>
-            <CardTitle>Rule-based summary</CardTitle>
+            <CardTitle>Review summary</CardTitle>
             <CardDescription>
-              Deterministic output from the current static analysis engine.
+              {parsedSummary
+                ? `Generated with ${parsedSummary.provider === "rule-based" ? "the rule-based fallback" : parsedSummary.provider}.`
+                : "Summary output for this saved report."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-slate-300">
-            {summaryLines.length > 0 ? (
-              summaryLines.map((line) => (
-                <p key={line}>{line}</p>
-              ))
+            {parsedSummary?.prSummary ? (
+              <p>{parsedSummary.prSummary}</p>
             ) : (
               <p className="text-slate-400">No summary text was stored for this review.</p>
             )}
+
+            {parsedSummary?.keyRisks.length ? (
+              <div className="space-y-3">
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Key risks</p>
+                {parsedSummary.keyRisks.map((risk) => (
+                  <div key={risk} className="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3">
+                    {risk}
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </CardContent>
         </Card>
 
@@ -162,6 +174,26 @@ export default async function ReviewDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      <Card className="bg-white/[0.03]">
+        <CardHeader>
+          <CardTitle>Reviewer checklist</CardTitle>
+          <CardDescription>
+            High-signal checks to walk through before approving the change.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3 text-sm leading-6 text-slate-300 md:grid-cols-2 xl:grid-cols-3">
+          {parsedSummary?.reviewerChecklist.length ? (
+            parsedSummary.reviewerChecklist.map((item) => (
+              <div key={item} className="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3">
+                {item}
+              </div>
+            ))
+          ) : (
+            <p className="text-slate-400">No reviewer checklist was stored for this review.</p>
+          )}
+        </CardContent>
+      </Card>
 
       <ReviewFilesPanel files={detail.files} issues={detail.issues} />
 
