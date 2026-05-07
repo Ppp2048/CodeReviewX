@@ -1,121 +1,223 @@
 # CodeReviewX
 
-CodeReviewX is an AI-assisted pull request review workspace built for fast triage, structured review workflows, and clear risk visibility. This repository currently includes the Phase 1 scaffold plus Phase 2 Supabase foundations: authentication, protected routes, profile persistence, and schema migrations.
+CodeReviewX is an AI-assisted pull request review workspace for fast risk triage, explainable static analysis, saved review reports, and reviewer-ready summaries. The app is built as a free-tier friendly SaaS stack with Next.js, Supabase, and optional server-side AI providers.
 
-## Current Scope
+## Features
 
-- Next.js App Router scaffold with TypeScript
-- Tailwind CSS setup
-- shadcn-style UI component foundation
-- Dark SaaS landing page
-- Login page
-- Signup page
-- Dashboard shell
-- Supabase Auth wiring
-- Browser and server Supabase clients
-- Protected dashboard and settings routes
-- Settings page profile save
-- GitHub PR URL parser and API fetch foundation
-- GitHub changed-files fetcher with optional token support
-- Rule-based static analyzer and risk scoring engine
-- Deterministic summary generation
-- SQL migrations and RLS policies
-- Placeholder review routes for future phases
-- Environment template
+- Supabase email/password auth with protected dashboard routes
+- GitHub PR URL analysis with optional token support
+- Pasted unified diff analysis
+- Rule-based static analyzer with risk scoring
+- Optional OpenAI or Gemini review summaries with safe rule-based fallback
+- Saved review history with file-level risk, issue grouping, and diff inspection
+- Dashboard metrics, recent review activity, common issue categories, and trend charts
+- Demo review mode backed by local fixtures
+- Markdown export for saved review reports
 
 ## Tech Stack
 
 - Next.js 15 App Router
 - TypeScript
 - Tailwind CSS
-- Supabase Auth
-- Supabase SSR helpers
-- Supabase PostgreSQL migrations
+- Supabase Auth + Supabase PostgreSQL
+- Recharts
 - Vitest
 - ESLint
 
-## Folder Structure
+## Architecture
+
+```text
+User
+  -> Next.js App Router UI
+    -> Server actions / route handlers
+      -> GitHub REST API (optional live PR source)
+      -> Rule-based analyzer
+      -> Optional OpenAI / Gemini provider
+      -> Supabase Auth + Postgres storage
+```
+
+## Project Structure
 
 ```text
 app/
+  api/
+  dashboard/
+  login/
+  settings/
+  signup/
 components/
+  dashboard/
+  review/
+  ui/
+fixtures/
 lib/
-public/
+  ai/
+  analyzer/
+  export/
+  github/
+  reviews/
+  supabase/
+supabase/
+  migrations/
+tests/
 ```
 
 ## Local Setup
 
-1. Install dependencies:
+1. Install dependencies.
 
    ```powershell
    npm install
    ```
 
-2. Start the development server:
+2. Copy the environment template.
+
+   ```powershell
+   Copy-Item .env.example .env.local
+   ```
+
+3. Fill in the required variables in `.env.local`.
+
+4. Start the app.
 
    ```powershell
    npm run dev
    ```
 
-3. Open [http://localhost:3000](http://localhost:3000).
-
-4. Run the analyzer and parser unit tests:
-
-   ```powershell
-   npm test
-   ```
+5. Open [http://localhost:3000](http://localhost:3000).
 
 ## Environment Variables
 
-Copy `.env.example` to `.env.local` and add your Supabase project credentials.
+Add these values to `.env.local` for local development and to Vercel for deployment:
+
+```env
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+GITHUB_APP_CLIENT_ID=
+GITHUB_APP_CLIENT_SECRET=
+OPENAI_API_KEY=
+GEMINI_API_KEY=
+```
+
+Notes:
+
+- `OPENAI_API_KEY` and `GEMINI_API_KEY` are optional.
+- AI provider calls happen only on the server.
+- GitHub personal access tokens entered in the UI are used for that request only and are not stored.
 
 ## Supabase Setup
 
 1. Create a Supabase project.
-2. In Supabase, copy:
-   - `Project URL` into `NEXT_PUBLIC_SUPABASE_URL`
-   - `Publishable key` into `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-3. Add the `Service role key` to `SUPABASE_SERVICE_ROLE_KEY` for future server-only tasks. Phase 2 does not expose it to the browser.
-4. In the Supabase SQL editor, run the migration in [supabase/migrations/20260507163000_phase2_auth_schema.sql](supabase/migrations/20260507163000_phase2_auth_schema.sql)
-   or apply it with the Supabase CLI if you use one.
-5. In Authentication settings, configure your site URL and any local redirect URLs you need, such as `http://localhost:3000`.
+2. Copy the project URL into `NEXT_PUBLIC_SUPABASE_URL`.
+3. Copy the publishable key into `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+4. Copy the service role key into `SUPABASE_SERVICE_ROLE_KEY`.
+5. Configure the site URL and local redirect URL in Supabase Auth settings.
+6. Run the SQL migration in [supabase/migrations/20260507163000_phase2_auth_schema.sql](C:\Users\KIIT0001\Desktop\Projects\CodeReviewX\supabase\migrations\20260507163000_phase2_auth_schema.sql).
 
-## What Phase 2 Adds
+## Database Migration
 
-- Supabase email/password auth
-- Middleware-based route protection for `/dashboard` and `/settings`
-- Profile persistence for the settings page
-- SQL schema for `profiles`, `reviews`, `review_files`, and `review_issues`
-- Row Level Security policies for user-owned data
+Use the Supabase SQL editor and run:
 
-## What Phase 3 Adds
+```sql
+-- paste the contents of:
+-- supabase/migrations/20260507163000_phase2_auth_schema.sql
+```
 
-- GitHub pull request URL parsing
-- GitHub PR metadata fetcher
-- GitHub changed-files fetcher
-- API route at `app/api/analyze/github-pr/route.ts`
-- Optional GitHub token support for private repositories and rate-limit recovery
-- Parser unit tests and sample GitHub response fixtures
+That migration creates:
 
-## What Phase 4 Adds
+- `profiles`
+- `reviews`
+- `review_files`
+- `review_issues`
+- Row Level Security policies for user-owned access
 
-- Secret detection
-- SQL injection-looking pattern detection
-- Sensitive file change detection
-- Missing-tests and deleted-tests heuristics
-- Large diff and dependency-change heuristics
-- Dangerous JS/TS pattern detection
-- File risk scoring and overall risk scoring
-- Deterministic rule-based summary output
-- Analyzer and scoring unit tests
+## Demo Workflow
 
-## Still Deferred
+1. Sign in.
+2. Open `/dashboard/new-review`.
+3. Use either:
+   - a live GitHub PR URL
+   - a pasted unified diff
+   - the demo review mode card
+4. Open the saved report.
+5. Export the report as Markdown if needed.
 
-The following are intentionally not implemented yet:
+## Dashboard and Reporting
 
-- AI summaries and export flows
-- Review ingestion and persistence UI
+Phase 7 adds:
+
+- total review count
+- high-risk review count
+- average risk score
+- reviews needing attention
+- recent review list
+- common analyzer issue categories
+- Recharts-based dashboard trends
+- Markdown export route at `/api/export/[id]`
+- demo review seeding from local fixtures
+
+## AI Summary Behavior
+
+- `None`: always uses deterministic rule-based summary generation
+- `OpenAI`: uses `OPENAI_API_KEY` when present, otherwise falls back
+- `Gemini`: uses `GEMINI_API_KEY` when present, otherwise falls back
+
+Generated sections include:
+
+- PR summary
+- key risks
+- suggested tests
+- reviewer checklist
+
+## Testing
+
+Run the checks below:
+
+```powershell
+npm run lint
+npm test
+npm run build
+```
+
+The current test suite covers:
+
+- GitHub PR URL parsing
+- static analyzer rules
+- risk scoring
+- AI summary serialization
 
 ## Deployment Notes
 
-The scaffold is designed for Vercel deployment once runtime integrations are added in later phases.
+Deploy on Vercel with the same environment variables used locally.
+
+Recommended steps:
+
+1. Push the repository to GitHub.
+2. Import the repo into Vercel.
+3. Add all environment variables in Vercel project settings.
+4. Ensure Supabase Auth redirect URLs include the Vercel domain.
+5. Deploy.
+
+## Screenshots Placeholder
+
+Add product screenshots here later:
+
+- `docs/screenshots/landing-page.png`
+- `docs/screenshots/new-review.png`
+- `docs/screenshots/review-report.png`
+- `docs/screenshots/dashboard-overview.png`
+
+## CV Bullet
+
+- Built CodeReviewX, an AI-assisted pull request review platform with Next.js, Supabase, explainable static analysis, optional OpenAI/Gemini summaries, saved Markdown-exportable reports, and a chart-driven SaaS dashboard.
+
+## Future Improvements
+
+- GitHub OAuth and repository linking
+- GitHub review comment publishing
+- Tree-sitter or AST-driven deeper analysis
+- SARIF export
+- GitHub Actions integration
+- organization and team dashboards

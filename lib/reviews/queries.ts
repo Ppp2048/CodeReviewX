@@ -13,6 +13,17 @@ export type ReviewDetailRecord = {
   issues: ReviewIssueRow[];
 };
 
+export type DashboardOverview = {
+  totalReviews: number;
+  highRiskReviews: number;
+  averageRiskScore: number;
+  reviewsNeedingAttention: number;
+  commonIssueCategories: Array<{ category: string; count: number }>;
+  reviewVolume: Array<{ date: string; reviews: number; avgRisk: number }>;
+  riskDistribution: Array<{ name: string; value: number; color: string }>;
+  recentReviews: ReviewListItem[];
+};
+
 export async function getCurrentUser(
   supabase: SupabaseClient<Database>,
 ) {
@@ -126,5 +137,111 @@ export async function getReviewDetailForUser(
     review,
     files: files ?? [],
     issues: issues ?? [],
+  };
+}
+
+export async function getDashboardOverview(
+  supabase: SupabaseClient<Database>,
+  user: User,
+): Promise<DashboardOverview> {
+  const reviews = await listReviewsForUser(supabase, user);
+
+  if (reviews.length === 0) {
+    return {
+      totalReviews: 0,
+      highRiskReviews: 0,
+      averageRiskScore: 0,
+      reviewsNeedingAttention: 0,
+      commonIssueCategories: [],
+      reviewVolume: [],
+      riskDistribution: [
+        { name: "Low", value: 0, color: "#34d399" },
+        { name: "Medium", value: 0, color: "#fbbf24" },
+        { name: "High", value: 0, color: "#fb923c" },
+        { name: "Critical", value: 0, color: "#fb7185" },
+      ],
+      recentReviews: [],
+    };
+  }
+
+  const reviewIds = reviews.map((review) => review.id);
+  const { data: issues, error: issuesError } = await supabase
+    .from("review_issues")
+    .select("category, review_id")
+    .in("review_id", reviewIds);
+
+  if (issuesError) {
+    throw new Error(issuesError.message);
+  }
+
+  const averageRiskScore = Math.round(
+    reviews.reduce((sum, review) => sum + review.overall_risk_score, 0) / reviews.length,
+  );
+  const highRiskReviews = reviews.filter((review) =>
+    review.risk_level === "high" || review.risk_level === "critical",
+  ).length;
+  const reviewsNeedingAttention = reviews.filter((review) => review.issueCount > 0).length;
+
+  const issueCategoryCounts = new Map<string, number>();
+  for (const issue of issues ?? []) {
+    issueCategoryCounts.set(issue.category, (issueCategoryCounts.get(issue.category) ?? 0) + 1);
+  }
+
+  const commonIssueCategories = Array.from(issueCategoryCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([category, count]) => ({ category, count }));
+
+  const reviewVolumeMap = new Map<string, { reviews: number; totalRisk: number }>();
+  for (const review of reviews) {
+    const dateKey = new Intl.DateTimeFormat("en-CA").format(new Date(review.created_at));
+    const existing = reviewVolumeMap.get(dateKey) ?? { reviews: 0, totalRisk: 0 };
+    reviewVolumeMap.set(dateKey, {
+      reviews: existing.reviews + 1,
+      totalRisk: existing.totalRisk + review.overall_risk_score,
+    });
+  }
+
+  const reviewVolume = Array.from(reviewVolumeMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-7)
+    .map(([date, value]) => ({
+      date: date.slice(5),
+      reviews: value.reviews,
+      avgRisk: Math.round(value.totalRisk / value.reviews),
+    }));
+
+  const riskDistribution = [
+    {
+      name: "Low",
+      value: reviews.filter((review) => review.risk_level === "low").length,
+      color: "#34d399",
+    },
+    {
+      name: "Medium",
+      value: reviews.filter((review) => review.risk_level === "medium").length,
+      color: "#fbbf24",
+    },
+    {
+      name: "High",
+      value: reviews.filter((review) => review.risk_level === "high").length,
+      color: "#fb923c",
+    },
+    {
+      name: "Critical",
+      value: reviews.filter((review) => review.risk_level === "critical").length,
+      color: "#fb7185",
+    },
+  ];
+
+  return {
+    totalReviews: reviews.length,
+    highRiskReviews,
+    averageRiskScore,
+    reviewsNeedingAttention,
+    commonIssueCategories,
+    reviewVolume,
+    riskDistribution,
+    recentReviews: reviews.slice(0, 5),
   };
 }

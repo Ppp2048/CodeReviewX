@@ -6,6 +6,7 @@ import { z } from "zod";
 import { buildReviewSummary } from "@/lib/ai/summary";
 import { parseUnifiedDiff } from "@/lib/analyzer/diff-parser";
 import { analyzeGitHubFiles } from "@/lib/analyzer/rules";
+import { getDemoChangedFilesFixture, getDemoPullRequestFixture } from "@/lib/demo/fixtures";
 import { GitHubApiError } from "@/lib/github/errors";
 import { fetchPrFiles } from "@/lib/github/fetch-pr-files";
 import { fetchPrMetadata } from "@/lib/github/fetch-pr-metadata";
@@ -175,4 +176,62 @@ export async function createReviewAction(
           : "Unexpected error while building the review report.",
     };
   }
+}
+
+export async function createDemoReviewAction() {
+  const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    redirect("/dashboard/new-review?error=Supabase environment variables are not configured.");
+  }
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/login?error=Your session expired. Please sign in again.");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("preferred_ai_provider")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const providerPreference = profile?.preferred_ai_provider ?? "none";
+  const pullRequest = getDemoPullRequestFixture();
+  const files = getDemoChangedFilesFixture();
+  const analysis = analyzeGitHubFiles(files);
+  const summary = await buildReviewSummary({
+    providerPreference,
+    reviewTitle: pullRequest.title,
+    sourceType: "github_pr",
+    analysis,
+    files,
+    pullRequest,
+  });
+
+  const review = await persistReview({
+    supabase,
+    userId: user.id,
+    sourceType: "github_pr",
+    parsedPrUrl: {
+      owner: "example",
+      repo: "codereviewx",
+      pullNumber: pullRequest.number,
+      normalizedUrl: pullRequest.html_url,
+    },
+    pullRequest,
+    files,
+    summary,
+    overallRiskScore: analysis.overallRiskScore,
+    riskLevel: analysis.riskLevel,
+    issues: analysis.issues,
+    fileRisks: analysis.fileRisks,
+    rawDiff: files.map((file) => file.patch ?? "").filter(Boolean).join("\n\n"),
+  });
+
+  redirect(`/dashboard/reviews/${review.id}`);
 }
