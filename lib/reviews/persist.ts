@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import type { AnalyzerResult } from "@/lib/analyzer/types";
+import type { GeneratedReviewSummary } from "@/lib/ai/types";
+import { serializeGeneratedSummary } from "@/lib/ai/summary";
 import type { Database, ReviewFileInsert, ReviewInsert, ReviewIssueInsert } from "@/lib/db/types";
 import type { GitHubPrFile, GitHubPrMetadata, ParsedPrUrl } from "@/lib/github/types";
 
@@ -11,7 +12,25 @@ type PersistReviewInput = {
   parsedPrUrl?: ParsedPrUrl;
   pullRequest?: GitHubPrMetadata;
   files: GitHubPrFile[];
-  analysis: AnalyzerResult;
+  summary: GeneratedReviewSummary;
+  overallRiskScore: number;
+  riskLevel: "low" | "medium" | "high" | "critical";
+  issues: Array<{
+    filePath: string | null;
+    severity: "low" | "medium" | "high" | "critical";
+    category: string;
+    title: string;
+    description: string;
+    recommendation: string;
+    lineNumber: number | null;
+  }>;
+  fileRisks: Array<{
+    filePath: string;
+    additions: number;
+    deletions: number;
+    score: number;
+    riskLevel: "low" | "medium" | "high" | "critical";
+  }>;
   rawDiff: string | null;
 };
 
@@ -22,7 +41,11 @@ export async function persistReview({
   parsedPrUrl,
   pullRequest,
   files,
-  analysis,
+  summary,
+  overallRiskScore,
+  riskLevel,
+  issues,
+  fileRisks,
   rawDiff,
 }: PersistReviewInput) {
   const reviewInsert: ReviewInsert = {
@@ -39,12 +62,12 @@ export async function persistReview({
         timeStyle: "short",
       }).format(new Date())}`,
     author: pullRequest?.user.login ?? null,
-    overall_risk_score: analysis.overallRiskScore,
-    risk_level: analysis.riskLevel,
-    ai_summary: analysis.summary.text,
+    overall_risk_score: overallRiskScore,
+    risk_level: riskLevel,
+    ai_summary: serializeGeneratedSummary(summary),
     suggested_tests:
-      analysis.summary.suggestedTests.length > 0
-        ? analysis.summary.suggestedTests.join("\n")
+      summary.suggestedTests.length > 0
+        ? summary.suggestedTests.join("\n")
         : null,
     raw_diff: rawDiff,
   };
@@ -59,7 +82,7 @@ export async function persistReview({
     throw new Error(reviewError.message);
   }
 
-  const fileInserts: ReviewFileInsert[] = analysis.fileRisks.map((fileRisk) => {
+  const fileInserts: ReviewFileInsert[] = fileRisks.map((fileRisk) => {
     const sourceFile = files.find((file) => file.filename === fileRisk.filePath);
 
     return {
@@ -85,7 +108,7 @@ export async function persistReview({
 
   const fileIdByPath = new Map(insertedFiles.map((file) => [file.file_path, file.id]));
 
-  const issueInserts: ReviewIssueInsert[] = analysis.issues.map((issue) => ({
+  const issueInserts: ReviewIssueInsert[] = issues.map((issue) => ({
     review_id: review.id,
     file_id: issue.filePath ? fileIdByPath.get(issue.filePath) ?? null : null,
     severity: issue.severity,

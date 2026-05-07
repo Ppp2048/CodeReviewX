@@ -57,13 +57,13 @@ export default async function SettingsPage({
 
         <Card className="bg-white/[0.03]">
           <CardHeader>
-            <CardTitle>Phase 2 status</CardTitle>
-            <CardDescription>What is live now versus what remains for later milestones.</CardDescription>
+            <CardTitle>AI summary behavior</CardTitle>
+            <CardDescription>How provider preference works in the current implementation.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-slate-400">
-            <p>Supabase Auth, protected routes, and profile persistence are now wired for this scaffold.</p>
-            <p>GitHub PR ingestion, review storage UI, and static analysis remain intentionally out of scope.</p>
-            <p>AI provider requests and user API key handling are still deferred to later phases.</p>
+            <p>Choose <strong className="font-medium text-slate-200">None</strong> to always use the deterministic rule-based fallback summary.</p>
+            <p>Choose <strong className="font-medium text-slate-200">OpenAI</strong> or <strong className="font-medium text-slate-200">Gemini</strong> to request richer review summaries, key risks, suggested tests, and reviewer checklists from the server when that provider key is configured.</p>
+            <p>If the selected provider has no server-side API key configured, CodeReviewX falls back automatically to the rule-based summary without exposing any secret to the client.</p>
           </CardContent>
         </Card>
       </div>
